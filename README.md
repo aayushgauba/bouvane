@@ -39,6 +39,16 @@ expecting delivery. Beta signups are stored; invitations are not sent automatica
 .\venv\Scripts\python.exe manage.py test website
 ```
 
+## Collect static files for deployment
+
+```bash
+python manage.py collectstatic --noinput
+```
+
+This collects assets from `static/` and installed apps into `staticfiles/`
+(`STATIC_ROOT`). Configure your production web server or hosting platform to
+serve `/static/` from that directory. Keep `static/` as the source directory.
+
 This checkout uses development settings. Before a production Django deployment,
 configure a private secret key, disable DEBUG, set DJANGO_ALLOWED_HOSTS, serve
 collected static files, and configure HTTPS, database backups, and mail delivery.
