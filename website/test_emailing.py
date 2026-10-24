@@ -48,6 +48,17 @@ class BrandedEmailTests(TestCase):
         self.assertNotIn('<script', html)
         self.assertEqual(message.reply_to, ['support@bouvane.com'])
 
+    def test_login_code_uses_dedicated_branded_template(self):
+        message = self.account_email('account/email/login_code')
+        html = self.html(message)
+        self.assertEqual(message.subject, '[Bouvane] Your sign-in code')
+        self.assertIn('YOUR ONE-TIME LOGIN CODE', html)
+        self.assertIn('Keep this code private.', html)
+        self.assertIn('5 minutes', html)
+        self.assertIn(self.context['code'], html)
+        self.assertIn(self.context['code'], message.body)
+        self.assertIn('cid:bouvane-logo', html)
+
     def test_password_reset_button_retains_the_complete_token_url(self):
         message = self.account_email('account/email/password_reset_key')
         self.assertIn(self.context['password_reset_url'], message.body)

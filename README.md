@@ -22,7 +22,16 @@ Open http://127.0.0.1:8000/.
 .\venv\Scripts\python.exe manage.py create_staff support@bouvane.com
 ```
 
-Open `/accounts/login/`. Verify your email with the emailed code, then add a
+Open `/accounts/login/` and enter your email on the first screen. Existing active
+staff accounts at exactly `@bouvane.com` receive an eight-character alphanumeric
+email code instead of a password prompt. Other email domains proceed to a
+separate password screen. Company login codes expire after five minutes, allow
+five attempts and three resends, and are single-use. Unknown, inactive, and
+nonstaff company addresses receive no code and cannot register through login.
+Passkey sign-in remains available from the email screen.
+
+The emailed company login code also verifies the account's email ownership.
+Other accounts verify their email after password sign-in when needed. Then add a
 passkey or authenticator app. Save the generated recovery codes privately.
 Sign in again to complete an actual MFA challenge before entering `/dashboard/`.
 Registration is closed; only active staff accounts can use the dashboard.
@@ -113,10 +122,12 @@ Imported addresses must still be verified. Old sessions are invalidated; old
 user tables and old admin logs remain as legacy data, unused by the portal.
 Do not run the old application against the upgraded database.
 
-Existing users can sign in with their email and existing password. If you had no
+Existing users at other domains can sign in with their email and existing password.
+Company users use an emailed code, even if they previously had a password. If you had no
 staff user, provision one with `python manage.py create_staff support@bouvane.com`.
-The command prompts for a password without echoing it and does not mark the
-email verified or skip MFA. No default credentials are created.
+The command creates company accounts without a password; other domains prompt
+for a password without echoing it. It does not mark the email verified or skip
+MFA. No default credentials are created.
 
 ## Check
 

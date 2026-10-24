@@ -18,9 +18,15 @@ from django.urls import include, path, re_path
 from django.views.generic import RedirectView
 from website.views import home
 from website import portal
+from website import login
 
 urlpatterns = [
     path('', home, name='home'),
+    path('accounts/login/', login.EmailFirstLoginView.as_view(), name='account_login'),
+    path('accounts/login/password/', login.PasswordLoginView.as_view(), name='account_password_login'),
+    path('accounts/login/restart/', login.restart_login, name='account_restart_login'),
+    path('accounts/login/code/', login.CompanyRequestCodeView.as_view(), name='account_request_login_code'),
+    path('accounts/reauthenticate/', login.AccountReauthenticateView.as_view(), name='account_reauthenticate'),
     path('accounts/', include('allauth.urls')),
     path('dashboard/', portal.dashboard, name='dashboard'),
     path('dashboard/setup/', portal.setup, name='dashboard_setup'),

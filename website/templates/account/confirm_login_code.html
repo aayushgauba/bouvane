@@ -1,0 +1,8 @@
+{% extends 'allauth/layouts/entrance.html' %}
+{% block head_title %}Enter your sign-in code{% endblock %}
+{% block content %}
+<p class="kicker">CHECK YOUR EMAIL</p><h1>Enter your sign-in code.</h1><p class="intro">If an eligible account exists for <strong>{{ email }}</strong>, we’ve sent an 8-character code. It expires in 5 minutes.</p>
+<form method="post" action="{% url 'account_confirm_login_code' %}">{% csrf_token %}{{ verify_form.as_p }}{{ redirect_field }}<button class="primary full" type="submit">Verify and continue</button></form>
+{% if can_resend %}<form method="post" action="{% url 'account_confirm_login_code' %}">{% csrf_token %}{{ redirect_field }}<button class="quiet" name="action" value="resend" type="submit">Send a new code</button></form>{% endif %}
+<form method="post" action="{% url 'account_restart_login' %}">{% csrf_token %}<button class="quiet" type="submit">Use a different email</button></form>
+{% endblock %}

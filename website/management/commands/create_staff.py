@@ -8,6 +8,7 @@ from django.core.validators import validate_email
 from django.db import transaction
 
 from allauth.account.models import EmailAddress
+from website.login import is_company_email
 
 
 class Command(BaseCommand):
@@ -25,13 +26,15 @@ class Command(BaseCommand):
             raise CommandError('Enter a valid email address.') from exc
         if User.objects.filter(email__iexact=email).exists():
             raise CommandError('An account with this email already exists.')
-        password = getpass.getpass('Password: ')
-        if password != getpass.getpass('Confirm password: '):
-            raise CommandError('Passwords do not match.')
-        try:
-            validate_password(password, User(email=email))
-        except ValidationError as exc:
-            raise CommandError('; '.join(exc.messages)) from exc
+        password = None
+        if not is_company_email(email):
+            password = getpass.getpass('Password: ')
+            if password != getpass.getpass('Confirm password: '):
+                raise CommandError('Passwords do not match.')
+            try:
+                validate_password(password, User(email=email))
+            except ValidationError as exc:
+                raise CommandError('; '.join(exc.messages)) from exc
         with transaction.atomic():
             user = User.objects.create_user(email=email, password=password, is_staff=True)
             EmailAddress.objects.create(user=user, email=email, primary=True, verified=False)

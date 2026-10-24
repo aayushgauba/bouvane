@@ -45,7 +45,8 @@ class PortalTests(TestCase):
         return TOTP.activate(self.user, self.secret)
 
     def password_login(self):
-        return self.client.post(reverse('account_login'), {'login': self.user.email, 'password': self.password})
+        self.client.post(reverse('account_login'), {'login': self.user.email})
+        return self.client.post(reverse('account_password_login'), {'password': self.password})
 
     def code(self):
         return format_hotp_value(hotp_value(self.secret, int(time.time()) // 30))
@@ -250,7 +251,8 @@ class PortalTests(TestCase):
         code = self.code()
         self.client.post(reverse('mfa_authenticate'), {'code': code})
         other = Client()
-        other.post(reverse('account_login'), {'login': self.user.email, 'password': self.password})
+        other.post(reverse('account_login'), {'login': self.user.email})
+        other.post(reverse('account_password_login'), {'password': self.password})
         other.post(reverse('mfa_authenticate'), {'code': code})
         self.assertNotIn('_auth_user_id', other.session)
 

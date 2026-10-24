@@ -26,14 +26,15 @@ class BrandedEmail(EmailMultiAlternatives):
 
 def branded_email(*, subject, text_body, to, heading, lead='', detail_text='',
                   code='', action_url='', action_label='', safety_note='',
-                  reply_to=None, headers=None):
+                  reply_to=None, headers=None, template_name='website/email/message.html'):
     logo_path = finders.find('images/logo.jpeg')
-    html = render_to_string('website/email/message.html', {
+    html = render_to_string(template_name, {
         'heading': heading, 'lead': lead, 'detail_text': detail_text,
         'code': code, 'action_url': action_url, 'action_label': action_label,
         'safety_note': safety_note, 'has_logo': bool(logo_path),
         'support_email': settings.SUPPORT_EMAIL,
         'site_url': settings.PUBLIC_SITE_URL.rstrip('/'),
+        'login_code_timeout_minutes': settings.ACCOUNT_LOGIN_BY_CODE_TIMEOUT // 60,
     })
     message = BrandedEmail(
         subject=subject, body=text_body, from_email=settings.DEFAULT_FROM_EMAIL,
@@ -80,6 +81,13 @@ def brand_account_email(message, template_prefix, context):
             'code': context.get('code', ''),
             'safety_note': 'Never share your code. If you did not request it, you can ignore this email.',
         }
+        if kind == 'login_code':
+            options.update(
+                template_name='account/email/login_code_message.html',
+                heading='Your sign-in code.',
+                lead='Enter this 8-character code in the browser where you started signing in to Bouvane.',
+                safety_note='This code expires in 5 minutes and can only be used once. Never share it. If you did not request it, you can ignore this email.',
+            )
     return branded_email(
         subject=message.subject, text_body=message.body, to=message.to,
         headers=message.extra_headers, **options,
