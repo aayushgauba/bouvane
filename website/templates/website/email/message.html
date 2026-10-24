@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light"><title>{{ heading }}</title></head>
+<body style="margin:0;padding:0;background-color:#f1eee5;color:#242422;font-family:Arial,Helvetica,sans-serif;-webkit-text-size-adjust:100%;">
+  <div style="display:none;max-height:0;overflow:hidden;opacity:0;font-size:1px;line-height:1px;">{{ heading }} {{ lead }}</div>
+  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="width:100%;background-color:#f1eee5;"><tr><td align="center" style="padding:32px 12px;">
+    <table role="presentation" width="600" cellspacing="0" cellpadding="0" border="0" style="width:100%;max-width:600px;background-color:#fffefb;border:1px solid #deded4;">
+      <tr><td><table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0"><tr><td width="33%" height="5" bgcolor="#b62620" style="height:5px;font-size:0;line-height:0;">&nbsp;</td><td width="34%" height="5" bgcolor="#ff7317" style="height:5px;font-size:0;line-height:0;">&nbsp;</td><td width="33%" height="5" bgcolor="#ffb823" style="height:5px;font-size:0;line-height:0;">&nbsp;</td></tr></table></td></tr>
+      <tr><td style="padding:30px 28px 24px;border-bottom:1px solid #e9e5db;">
+        <table role="presentation" cellspacing="0" cellpadding="0" border="0"><tr>{% if has_logo %}<td width="42" style="width:42px;padding-right:9px;"><img src="cid:bouvane-logo" width="32" height="35" alt="" style="display:block;border:0;width:32px;height:35px;"></td>{% endif %}<td style="font-size:29px;line-height:35px;font-weight:bold;letter-spacing:-1px;color:#242422;">bouvane<span style="color:#b62620;">.</span></td></tr></table>
+        <p style="margin:12px 0 0;font-size:10px;line-height:16px;letter-spacing:1.4px;color:#68675f;">APPLICATION-AWARE SECURITY</p>
+      </td></tr>
+      <tr><td style="padding:30px 28px;">
+        <h1 style="margin:0 0 20px;font-size:29px;line-height:36px;font-weight:600;letter-spacing:-0.8px;color:#242422;">{{ heading }}</h1>
+        {% if lead %}<p style="margin:0 0 24px;font-size:15px;line-height:25px;color:#65645e;">{{ lead }}</p>{% endif %}
+        {% if code %}<table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="margin:0 0 24px;"><tr><td align="center" bgcolor="#f1eee5" style="padding:22px 12px;border:1px solid #ded7c8;"><p style="margin:0 0 9px;font-size:10px;line-height:16px;font-weight:bold;letter-spacing:1.5px;color:#65645e;">YOUR VERIFICATION CODE</p><p style="margin:0;font-family:Consolas,'Courier New',monospace;font-size:30px;line-height:40px;font-weight:bold;letter-spacing:5px;color:#b62620;">{{ code }}</p></td></tr></table>{% endif %}
+        {% if detail_text %}<div style="margin:0 0 24px;font-size:14px;line-height:24px;color:#46463f;overflow-wrap:anywhere;word-break:break-word;">{{ detail_text|linebreaksbr }}</div>{% endif %}
+        {% if action_url %}<table role="presentation" cellspacing="0" cellpadding="0" border="0" style="margin:0 0 24px;"><tr><td bgcolor="#b62620" style="background-color:#b62620;border:1px solid #b62620;mso-padding-alt:14px 22px;"><a href="{{ action_url }}" style="display:inline-block;padding:14px 22px;font-size:14px;line-height:20px;font-weight:bold;text-decoration:none;color:#ffffff;">{{ action_label }}</a></td></tr></table><p style="margin:0 0 8px;font-size:11px;line-height:18px;color:#65645e;">If the button does not work, copy this link into your browser:</p><p style="margin:0 0 24px;font-size:11px;line-height:18px;word-break:break-all;overflow-wrap:anywhere;"><a href="{{ action_url }}" style="color:#b62620;">{{ action_url }}</a></p>{% endif %}
+        {% if safety_note %}<p style="margin:0;padding-top:20px;border-top:1px solid #e9e5db;font-size:12px;line-height:20px;color:#65645e;">{{ safety_note }}</p>{% endif %}
+      </td></tr>
+      <tr><td bgcolor="#faf9f5" style="padding:22px 28px;border-top:1px solid #e9e5db;background-color:#faf9f5;"><p style="margin:0 0 8px;font-size:12px;line-height:20px;color:#65645e;">Questions? Reply to <a href="mailto:{{ support_email }}" style="color:#b62620;">{{ support_email }}</a>.</p><p style="margin:0;font-size:11px;line-height:18px;color:#7a786e;">Understand the application. Rethink its protection.<br><a href="{{ site_url }}" style="color:#7a786e;text-decoration:none;">Bouvane</a></p></td></tr>
+    </table>
+  </td></tr></table>
+</body>
+</html>

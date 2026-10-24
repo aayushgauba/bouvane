@@ -1,0 +1,21 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="robots" content="noindex,nofollow">
+  <title>{% block head_title %}Staff portal{% endblock %} | Bouvane</title>
+  <link rel="icon" href="{% static 'images/logo.jpeg' %}">
+  <link rel="stylesheet" href="{% static 'css/portal.css' %}">
+  <script src="{% static 'js/portal.js' %}" defer></script>
+  {% block extra_head %}{% endblock %}
+</head>
+<body>
+  <a class="skip-link" href="#portal-content">Skip to content</a>
+  <header class="portal-header"><a class="portal-brand" href="/"><img src="{% static 'images/logo.jpeg' %}" width="32" height="35" alt="">bouvane<span>.</span></a><span class="portal-label">STAFF PORTAL</span>
+  {% if user.is_authenticated %}<nav aria-label="Account navigation"><a href="{% url 'dashboard' %}">Dashboard</a><a href="{% url 'mfa_index' %}">Security</a><a href="{% url 'account_email' %}">Email</a><a href="{% url 'account_change_password' %}">Password</a><a href="{% url 'usersessions_list' %}">Sessions</a><form method="post" action="{% url 'account_logout' %}">{% csrf_token %}<button class="quiet" type="submit">Sign out</button></form></nav>{% else %}<a class="back-link" href="/">Back to website</a>{% endif %}</header>
+  {% block body %}<main id="portal-content" class="portal-main {% block main_class %}auth-main{% endblock %}"><div class="portal-messages" aria-live="polite">{% for message in messages %}<div class="notice {{ message.tags }}">{{ message }}</div>{% endfor %}</div><div id="passkey-feedback" class="notice error" role="alert" hidden></div><div class="{% block card_class %}auth-card{% endblock %}">{% block content %}{% endblock %}</div></main>{% endblock %}
+  <footer class="portal-footer">Bouvane staff access <span>Need help? <a href="mailto:support@bouvane.com">support@bouvane.com</a></span></footer>
+  {% block extra_body %}{% endblock %}
+</body>
+</html>

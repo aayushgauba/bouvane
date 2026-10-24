@@ -1,0 +1,7 @@
+{% autoescape off %}Hello from Bouvane,
+
+{% block content %}{% endblock %}
+
+If you need help, reply to {{ support_email|default:'support@bouvane.com' }}.
+Bouvane | Application-aware security
+{% endautoescape %}

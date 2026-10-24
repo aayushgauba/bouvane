@@ -6,6 +6,11 @@ from django.urls import reverse
 from .models import BetaSignup, Enquiry
 
 
+@override_settings(
+    CACHES={'default': {'BACKEND': 'django.core.cache.backends.locmem.LocMemCache'}},
+    MAILERS={'default': {'BACKEND': 'django.core.mail.backends.locmem.EmailBackend'}},
+    CONTACT_RECIPIENT='',
+)
 class WebsiteTests(TestCase):
     def setUp(self):
         self.contact = {'name': 'Alex Morgan', 'email': 'alex@example.com', 'company': 'Example',
@@ -63,7 +68,7 @@ class WebsiteTests(TestCase):
         self.assertEqual(response.status_code, 403)
 
     @override_settings(CONTACT_RECIPIENT='team@example.com')
-    @patch('website.views.send_mail', side_effect=RuntimeError('Mail unavailable'))
+    @patch('website.views.send_enquiry_notification', side_effect=RuntimeError('Mail unavailable'))
     def test_email_failure_preserves_enquiry(self, mail):
         with self.assertLogs('website.views', level='ERROR'):
             response = self.client.post(reverse('home'), self.contact)
@@ -72,5 +77,6 @@ class WebsiteTests(TestCase):
 
     def test_admin_requires_login(self):
         response = self.client.get('/admin/website/enquiry/')
-        self.assertEqual(response.status_code, 302)
-        self.assertIn('/admin/login/', response.url)
+        self.assertRedirects(response, '/dashboard/', fetch_redirect_response=False)
+        response = self.client.get('/dashboard/')
+        self.assertIn('/accounts/login/', response.url)

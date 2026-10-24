@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/6.1/ref/settings/
 
 import os
 from pathlib import Path
+from django.core.exceptions import ImproperlyConfigured
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -21,10 +22,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/6.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-1x!_buuoqfbf5_gc237ms0&&5bup7b7$9)u&5y6)jv*+i-g0&!'
+SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'django-insecure-local-development-only-bouvane')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.environ.get('DJANGO_DEBUG', 'true').lower() == 'true'
+if not DEBUG and (len(SECRET_KEY) < 50 or SECRET_KEY.startswith('django-insecure-')):
+    raise ImproperlyConfigured('Set DJANGO_SECRET_KEY to a private random value of at least 50 characters.')
 
 ALLOWED_HOSTS = os.environ.get('DJANGO_ALLOWED_HOSTS', 'localhost,127.0.0.1,[::1]').split(',')
 
@@ -32,13 +35,18 @@ ALLOWED_HOSTS = os.environ.get('DJANGO_ALLOWED_HOSTS', 'localhost,127.0.0.1,[::1
 # Application definition
 
 INSTALLED_APPS = [
-    'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'website',
+    'accounts',
+    'django.contrib.humanize',
+    'allauth',
+    'allauth.account',
+    'allauth.mfa',
+    'allauth.usersessions',
 ]
 
 MIDDLEWARE = [
@@ -47,6 +55,9 @@ MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'allauth.account.middleware.AccountMiddleware',
+    'allauth.usersessions.middleware.UserSessionsMiddleware',
+    'website.middleware.PrivatePortalMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
@@ -70,6 +81,56 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'bouvane.wsgi.application'
 
+AUTHENTICATION_BACKENDS = [
+    'allauth.account.auth_backends.AuthenticationBackend',
+]
+AUTH_USER_MODEL = 'accounts.User'
+ACCOUNT_USER_MODEL_USERNAME_FIELD = None
+LOGIN_URL = 'account_login'
+LOGIN_REDIRECT_URL = '/dashboard/'
+LOGOUT_REDIRECT_URL = '/accounts/login/'
+ACCOUNT_ADAPTER = 'website.auth.StaffAccountAdapter'
+ACCOUNT_LOGIN_METHODS = {'email'}
+ACCOUNT_SIGNUP_FIELDS = ['email*', 'password1*', 'password2*']
+ACCOUNT_EMAIL_VERIFICATION = 'mandatory'
+ACCOUNT_EMAIL_VERIFICATION_BY_CODE_ENABLED = True
+ACCOUNT_EMAIL_VERIFICATION_SUPPORTS_RESEND = True
+ACCOUNT_EMAIL_VERIFICATION_BY_CODE_TIMEOUT = 600
+ACCOUNT_EMAIL_NOTIFICATIONS = True
+ACCOUNT_EMAIL_SUBJECT_PREFIX = '[Bouvane] '
+ACCOUNT_LOGIN_ON_PASSWORD_RESET = False
+ACCOUNT_SESSION_REMEMBER = False
+ACCOUNT_REAUTHENTICATION_REQUIRED = True
+ACCOUNT_REAUTHENTICATION_TIMEOUT = 300
+ACCOUNT_DEFAULT_HTTP_PROTOCOL = 'http' if DEBUG else 'https'
+ACCOUNT_EMAIL_UNKNOWN_ACCOUNTS = False
+MFA_ADAPTER = 'website.auth.StaffMFAAdapter'
+MFA_FORMS = {
+    'login_webauthn': 'website.auth.VerifiedPasskeyLoginForm',
+    'add_webauthn': 'website.auth.StaffAddWebAuthnForm',
+}
+MFA_SUPPORTED_TYPES = ['totp', 'webauthn', 'recovery_codes']
+MFA_PASSKEY_LOGIN_ENABLED = True
+MFA_PASSKEY_SIGNUP_ENABLED = False
+MFA_ALLOW_UNVERIFIED_EMAIL = False
+MFA_TRUST_ENABLED = False
+MFA_TOTP_ISSUER = 'Bouvane'
+MFA_RECOVERY_CODES_SHOW_ONCE = True
+MFA_WEBAUTHN_ALLOW_INSECURE_ORIGIN = False
+USERSESSIONS_TRACK_ACTIVITY = True
+# Never change this value without migrating existing encrypted MFA secrets.
+MFA_ENCRYPTION_KEY = os.environ.get('MFA_ENCRYPTION_KEY', '')
+
+SESSION_COOKIE_AGE = 3600
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True
+SESSION_COOKIE_HTTPONLY = True
+SESSION_COOKIE_SECURE = not DEBUG
+CSRF_COOKIE_SECURE = not DEBUG
+SECURE_SSL_REDIRECT = not DEBUG
+CSRF_TRUSTED_ORIGINS = [origin for origin in os.environ.get('CSRF_TRUSTED_ORIGINS', '').split(',') if origin]
+# Shared rate limits and TOTP replay protection across workers on this database.
+CACHES = {'default': {'BACKEND': 'django.core.cache.backends.db.DatabaseCache', 'LOCATION': 'bouvane_cache'}}
+
 
 # Database
 # https://docs.djangoproject.com/en/6.1/ref/settings/#databases
@@ -77,7 +138,7 @@ WSGI_APPLICATION = 'bouvane.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'NAME': os.environ.get('DJANGO_DATABASE_PATH', str(BASE_DIR / 'db.sqlite3')),
     }
 }
 
@@ -122,15 +183,26 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 # Enquiries are always stored in the database. Enable email notifications by
 # setting these values and configuring MAILERS for your delivery provider.
-CONTACT_RECIPIENT = os.environ.get('CONTACT_RECIPIENT', '')
-DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', 'webmaster@localhost')
+CONTACT_RECIPIENT = os.environ.get('CONTACT_RECIPIENT', 'support@bouvane.com')
+DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', 'Bouvane <support@bouvane.com>')
+SUPPORT_EMAIL = os.environ.get('SUPPORT_EMAIL', 'support@bouvane.com')
+PUBLIC_SITE_URL = os.environ.get('PUBLIC_SITE_URL', 'https://bouvane.com')
 
 
 # Email
 # https://docs.djangoproject.com/en/6.1/topics/email/#topic-email-configuration
 
-MAILERS = {
-    'default': {
-        'BACKEND': 'django.core.mail.backends.console.EmailBackend',
-    },
-}
+MAILERS = {'default': {'BACKEND': 'django.core.mail.backends.console.EmailBackend'}}
+if os.environ.get('EMAIL_HOST'):
+    MAILERS['default'] = {
+        'BACKEND': 'django.core.mail.backends.smtp.EmailBackend',
+        'OPTIONS': {
+            'host': os.environ['EMAIL_HOST'],
+            'port': int(os.environ.get('EMAIL_PORT', '587')),
+            'username': os.environ.get('EMAIL_HOST_USER', ''),
+            'password': os.environ.get('EMAIL_HOST_PASSWORD', ''),
+            'use_tls': os.environ.get('EMAIL_USE_TLS', 'false' if os.environ.get('EMAIL_USE_SSL', '').lower() == 'true' else 'true').lower() == 'true',
+            'use_ssl': os.environ.get('EMAIL_USE_SSL', 'false').lower() == 'true',
+            'timeout': 15,
+        },
+    }

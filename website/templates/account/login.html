@@ -1,0 +1,10 @@
+{% extends 'allauth/layouts/entrance.html' %}
+{% block head_title %}Sign in{% endblock %}
+{% block content %}
+<p class="kicker">WELCOME BACK</p><h1>Sign in to Bouvane.</h1><p class="intro">Manage enquiries, beta access, and your account security.</p>
+<form method="post" action="{% url 'account_login' %}">{% csrf_token %}{{ form.as_p }}{{ redirect_field }}<button class="primary full" type="submit">Sign in with email</button></form>
+<a class="auth-link" href="{% url 'account_reset_password' %}">Forgot your password?</a>
+{% if PASSKEY_LOGIN_ENABLED %}<div class="divider"><span>or use your device</span></div><button id="passkey_login" class="secondary full" type="submit" form="mfa_login">Sign in with a passkey</button>{% endif %}
+<p class="muted small">Access is restricted to authorized staff. New accounts are provisioned by the site owner.</p>
+{% endblock %}
+{% block extra_body %}{{ block.super }}{% if PASSKEY_LOGIN_ENABLED %}{% include 'mfa/webauthn/snippets/login_script.html' with button_id='passkey_login' %}{% endif %}{% endblock %}

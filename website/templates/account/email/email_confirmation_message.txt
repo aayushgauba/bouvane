@@ -1,0 +1,7 @@
+{% extends 'account/email/base_message.txt' %}
+{% block content %}{% autoescape off %}Use this code to verify your Bouvane staff email address:
+
+{{ code }}
+
+Enter it in the browser where you started signing in. It expires in 10 minutes.
+If you did not request this code, you can ignore this message. Do not share the code with anyone.{% endautoescape %}{% endblock %}

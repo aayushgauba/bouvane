@@ -1,0 +1,8 @@
+{% extends 'allauth/layouts/manage.html' %}
+{% block head_title %}Secure your account{% endblock %}
+{% block content %}
+<p class="kicker">ONE MORE STEP</p><h1>Secure your account.</h1><p class="intro">Your email is verified. Add a security method before opening the staff dashboard.</p>
+<section class="security-option"><h2>Passkey</h2><p>Use your device's fingerprint, face recognition, PIN, or a security key. Enable passwordless sign-in when you add it.</p><a class="primary" href="{% url 'mfa_add_webauthn' %}">Add a passkey</a></section>
+<section class="security-option"><h2>Authenticator app</h2><p>Use time-based codes from an authenticator app as your second factor after your password.</p><a class="secondary" href="{% url 'mfa_activate_totp' %}">Set up an authenticator</a></section>
+<p class="muted small">Save your recovery codes somewhere private. After enrollment, sign in again to prove your security method before accessing data. Passkeys require HTTPS or localhost.</p>
+{% endblock %}

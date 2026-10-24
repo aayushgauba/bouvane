@@ -1,0 +1,8 @@
+{% extends 'allauth/layouts/manage.html' %}
+{% block head_title %}Enquiry from {{ record.name }}{% endblock %}
+{% block content %}
+<a class="auth-link" href="{% url 'dashboard' %}">Back to enquiries</a><p class="kicker">{{ record.service }}</p><h1>{{ record.name }}</h1>
+<dl class="enquiry-meta"><dt>Email</dt><dd>{{ record.email }}</dd><dt>Company</dt><dd>{{ record.company|default:'Not provided' }}</dd><dt>Received</dt><dd>{{ record.created_at|date:'M j, Y, g:i a T' }}</dd><dt>Status</dt><dd>{% if record.handled %}Handled{% else %}Open{% endif %}</dd></dl>
+<section class="message-body"><h2>Message</h2><div>{{ record.message|linebreaksbr }}</div></section>
+<form method="post">{% csrf_token %}{% if record.handled %}<button class="secondary" name="status" value="open">Reopen enquiry</button>{% else %}<button class="primary" name="status" value="handled">Mark as handled</button>{% endif %}</form>
+{% endblock %}

@@ -1,1 +1,2 @@
 Django==6.1.2
+django-allauth[mfa]==65.20.1

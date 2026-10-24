@@ -2,12 +2,12 @@ import logging
 
 from django.conf import settings
 from django.contrib import messages
-from django.core.mail import send_mail
 from django.shortcuts import redirect, render
 from django.views.decorators.http import require_http_methods
 
 from .forms import BetaSignupForm, ContactForm
 from .models import BetaSignup
+from .emailing import send_enquiry_notification
 
 logger = logging.getLogger(__name__)
 
@@ -28,12 +28,7 @@ def home(request):
             enquiry = form.save()
             if settings.CONTACT_RECIPIENT:
                 try:
-                    send_mail(
-                        subject=f'Bouvane enquiry: {enquiry.service}',
-                        message=f'Name: {enquiry.name}\nEmail: {enquiry.email}\nCompany: {enquiry.company}\n\n{enquiry.message}',
-                        from_email=settings.DEFAULT_FROM_EMAIL,
-                        recipient_list=[settings.CONTACT_RECIPIENT],
-                    )
+                    send_enquiry_notification(enquiry)
                 except Exception:
                     # A delivery failure must not lose a successfully saved enquiry.
                     logger.exception('Email notification failed for enquiry %s', enquiry.pk)
